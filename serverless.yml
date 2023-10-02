@@ -3,13 +3,20 @@ app: aws-node-express-dynamo-api
 service: aws-node-express-dynamo-api
 frameworkVersion: "3"
 
+useDotenv: true
+
 custom:
-  tableName: "users-table-${sls:stage}"
-  dynamodb:
+  serverless-dynamodb:
     start:
+      docker: true
+      port: 8000
+      inMemory: true
       migrate: true
+      seed: true
+      convertEmptyValues: true
+      noStart: true
     stages:
-      - dev
+      - local
 
 provider:
   name: aws
@@ -27,8 +34,6 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
-  environment:
-    USERS_TABLE: ${self:custom.tableName}
 
 functions:
   api:
@@ -44,12 +49,22 @@ resources:
         AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
+          - AttributeName: email
+            AttributeType: S
         KeySchema:
           - AttributeName: userId
             KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: GSI_email_sk
+            KeySchema:
+              - AttributeName: email
+                KeyType: HASH
+            Projection:
+              ProjectionType: "ALL"
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:custom.tableName}
+        TableName: "${env:USERS_TABLE}-${env:STAGE}"
 
 plugins:
-  - serverless-dynamodb-local
+  - serverless-dotenv-plugin
+  - serverless-dynamodb
   - serverless-offline
