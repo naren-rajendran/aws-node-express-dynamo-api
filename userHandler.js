@@ -9,10 +9,10 @@ const {
     QueryCommand,
 } = require("@aws-sdk/lib-dynamodb");
 const userModel = require("./userModel");
-const { USERS_TABLE, LOCAL_DB_PORT, AWS_REGION } = process.env;
+const { USERS_TABLE, LOCAL_DB_PORT, AWS_REGION, IS_OFFLINE } = process.env;
 
 const dynamoDbClientParams = {};
-if (process.env.IS_OFFLINE) {
+if (IS_OFFLINE) {
     dynamoDbClientParams.region = AWS_REGION;
     dynamoDbClientParams.endpoint = `http://localhost:${LOCAL_DB_PORT}`;
 }
@@ -42,7 +42,6 @@ async function createUser(userData) {
 
     const email = user.email;
     const emailUser = await _getUsersByEmail(email);
-    console.log(emailUser, emailUser.length);
     if (emailUser.length >= 1) {
         return {
             user: null,
@@ -124,7 +123,6 @@ async function deleteUser(userId) {
     };
 
     const result = await dynamoDbClient.send(new DeleteCommand(params));
-    console.log(result);
     return result;
 }
 
@@ -141,8 +139,8 @@ async function _getUsersByEmail(email) {
         }
     };
 
-    const { Items } = await dynamoDbClient.send(new QueryCommand(params));
-    return Items.map(i => i.userId);
+    const res = await dynamoDbClient.send(new QueryCommand(params));
+    return res.Items.map(i => i.userId);
 }
 
 module.exports = {

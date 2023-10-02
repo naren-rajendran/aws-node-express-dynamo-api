@@ -14,17 +14,17 @@ const userSchema = Joi.object({
     city: Joi.string().lowercase().max(30).optional(),
     state: Joi.string().lowercase().max(30).optional(), // short or long form
     country: Joi.string().lowercase().max(30).optional(),
-    zipCode: Joi.string().regex(/^\d+$/).min(5).max(10).allow('').optional().messages({
+    zipCode: Joi.string().regex(/^\d+$/).max(10).allow('').optional().messages({
         'string.pattern.base': 'zip code should only contain numbers'
     }) //could be from any country
 });
 
 function validateUserData(data) {
     const { phone, zipCode } = data;
+    data.phone = phone ? phone.toString() : '';
+    data.zipCode = zipCode ? zipCode.toString() : '';
     const userData = Object.assign({}, {
         userId: uuidv4(),
-        phone: phone ? phone.toString() : '',
-        zipCode: zipCode ? zipCode.toString() : '',
     }, data);
     const result = userSchema.validate(userData, {
         abortEarly: false,

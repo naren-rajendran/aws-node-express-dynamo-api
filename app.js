@@ -1,10 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 // app
 const app = express();
 const userRoutes = require("./userRouter");
 app.use(bodyParser.json());
+app.use(cors());
 
 // routes
 app.get('/', function (req, res, next) {
@@ -25,7 +27,7 @@ app.use('/users', userRoutes);
 
 // 404
 app.use(function (req, res, next) {
-    return res.json({ error: 'Not found' });
+    return res.status(404).json({ error: 'Not found' });
 });
 
 // 500

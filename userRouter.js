@@ -25,7 +25,6 @@ router.post("/", async function (req, res) {
 
     try {
         const { user, error } = await userHandler.createUser(userData);
-        console.log(user, error);
         if (user) {
             return res.status(201).json(user);
         } else {
