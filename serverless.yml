@@ -32,7 +32,11 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [UsersTable, Arn]
+            - { "Fn::GetAtt": [UsersTable, Arn] }
+            - Fn::Join:
+                - "/"
+                - - { "Fn::GetAtt": [UsersTable, Arn] }
+                  - "index/*"
   environment:
     USERS_TABLE: ${self:custom.tableName}
     LOCAL_API_PORT: 3000
