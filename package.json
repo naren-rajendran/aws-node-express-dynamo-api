@@ -4,6 +4,7 @@
   "description": "",
   "dependencies": {
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "express": "^4.18.2",
     "joi": "^17.10.2",
     "serverless-http": "^3.1.1",
@@ -12,10 +13,14 @@
   "devDependencies": {
     "@aws-sdk/client-dynamodb": "^3.421.0",
     "@aws-sdk/lib-dynamodb": "^3.421.0",
+    "axios": "^1.5.1",
+    "mocha": "^10.2.0",
     "serverless-dynamodb": "^0.2.43",
     "serverless-offline": "^13.1.2"
   },
   "scripts": {
-    "sls_offline_start_local": "AWS_ACCESS_KEY_ID=default AWS_SECRETE_ACCESS_KEY=default AWS_REGION=us-east-1 sls offline start --stage local"
+    "sls_offline_start_local": "AWS_ACCESS_KEY_ID=default AWS_SECRETE_ACCESS_KEY=default AWS_REGION=us-east-1 sls offline start --stage local",
+    "test": "mocha --recursive tests/unit",
+    "ft_test": "mocha --recursive tests/functional"
   }
 }
