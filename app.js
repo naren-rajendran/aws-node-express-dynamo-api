@@ -8,16 +8,15 @@ const {
     GetCommand,
     PutCommand,
 } = require("@aws-sdk/lib-dynamodb");
-const { USERS_TABLE, DB_PORT, AWS_REGION, STAGE } = process.env;
+const { USERS_TABLE, LOCAL_DB_PORT, AWS_REGION } = process.env;
 
 const dynamoDbClientParams = {};
 if (process.env.IS_OFFLINE) {
     dynamoDbClientParams.region = AWS_REGION;
-    dynamoDbClientParams.endpoint = `http://localhost:${DB_PORT}`;
+    dynamoDbClientParams.endpoint = `http://localhost:${LOCAL_DB_PORT}`;
 }
 const client = new DynamoDBClient(dynamoDbClientParams);
 const dynamoDbClient = DynamoDBDocumentClient.from(client);
-const tableName = `${USERS_TABLE}-${STAGE}`;
 
 // app
 const app = express();
@@ -25,7 +24,7 @@ app.use(bodyParser.json());
 
 app.get("/users/:userId", async function (req, res) {
     const params = {
-        TableName: tableName,
+        TableName: USERS_TABLE,
         Key: {
             userId: req.params.userId,
         },
@@ -59,7 +58,7 @@ app.post("/users", async function (req, res) {
     }
 
     const params = {
-        TableName: tableName,
+        TableName: USERS_TABLE,
         Item: {
             userId: userId,
             name: name,

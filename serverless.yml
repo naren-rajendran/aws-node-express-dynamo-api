@@ -3,9 +3,8 @@ app: aws-node-express-dynamo-api
 service: aws-node-express-dynamo-api
 frameworkVersion: "3"
 
-useDotenv: true
-
 custom:
+  tableName: "users-table-${sls:stage}"
   serverless-dynamodb:
     start:
       docker: true
@@ -34,6 +33,10 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [UsersTable, Arn]
+  environment:
+    USERS_TABLE: ${self:custom.tableName}
+    LOCAL_API_PORT: 3000
+    LOCAL_DB_PORT: 8000
 
 functions:
   api:
@@ -62,9 +65,8 @@ resources:
             Projection:
               ProjectionType: "ALL"
         BillingMode: PAY_PER_REQUEST
-        TableName: "${env:USERS_TABLE}-${env:STAGE}"
+        TableName: ${self:custom.tableName}
 
 plugins:
-  - serverless-dotenv-plugin
   - serverless-dynamodb
   - serverless-offline
