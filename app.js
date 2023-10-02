@@ -1,92 +1,37 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 
-// db
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
-const {
-    DynamoDBDocumentClient,
-    GetCommand,
-    PutCommand,
-} = require("@aws-sdk/lib-dynamodb");
-const { USERS_TABLE, LOCAL_DB_PORT, AWS_REGION } = process.env;
-
-const dynamoDbClientParams = {};
-if (process.env.IS_OFFLINE) {
-    dynamoDbClientParams.region = AWS_REGION;
-    dynamoDbClientParams.endpoint = `http://localhost:${LOCAL_DB_PORT}`;
-}
-const client = new DynamoDBClient(dynamoDbClientParams);
-const dynamoDbClient = DynamoDBDocumentClient.from(client);
-
 // app
 const app = express();
+const userRoutes = require("./userRouter");
 app.use(bodyParser.json());
 
-app.get("/users/:userId", async function (req, res) {
-    const params = {
-        TableName: USERS_TABLE,
-        Key: {
-            userId: req.params.userId,
-        },
-    };
+// routes
+app.get('/', function (req, res, next) {
+    const apis = [{
+        userAPIs: [
+            { api: 'Get user', route: "/users/:userId", method: "GET" },
+            { api: 'Create user', route: "/users", method: "POST" },
+            { api: 'Update user', route: "/users/:userId", method: "PUT" },
+            { api: 'Delete user', route: "/users/:userId", method: "DELETE" }
+        ]
+    }];
 
-    try {
-        const { Item } = await dynamoDbClient.send(new GetCommand(params));
-        if (Item) {
-            const { userId, name } = Item;
-            res.json({ userId, name });
-        } else {
-            res
-                .status(404)
-                .json({ error: 'Could not find user with provided "userId"' });
-        }
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: "Could not retreive user" });
-    }
+    return res.status(400).json(apis);
 });
 
-app.post("/users", async function (req, res) {
-    const { userId, name } = req.body;
-    console.log(req.body);
-    if (typeof userId !== "string") {
-        res.status(400).json({ error: '"userId" must be a string' });
-        return;
-    } else if (typeof name !== "string") {
-        res.status(400).json({ error: '"name" must be a string' });
-        return;
-    }
+// user
+app.use('/users', userRoutes);
 
-    const params = {
-        TableName: USERS_TABLE,
-        Item: {
-            userId: userId,
-            name: name,
-        },
-    };
-
-    try {
-        await dynamoDbClient.send(new PutCommand(params));
-        return res.json({ userId, name });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({ error: "Could not create user" });
-        return;
-    }
-});
-
-// catch 404 and forward to error handler
+// 404
 app.use(function (req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+    return res.json({ error: 'Not found' });
 });
 
-// production error handler
-// no stacktraces leaked to user
+// 500
 app.use(function (err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
+    console.log(err);
+    return res.status(err.status || 500).json({
         message: err.message,
         error: {}
     });
