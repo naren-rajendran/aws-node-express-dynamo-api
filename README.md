@@ -4,6 +4,40 @@ A simple `user` CRUD api built using [serverless framework](https://github.com/s
 
 ## API endpoints
 
+#### List APIs
+
+<details>
+  <summary><code>GET</code> <code><b>/</b></code></summary>
+
+##### Parameters
+
+None
+
+##### Response
+
+> | http code   | content-type          | response      |
+> |-------------|-----------------------|---------------|
+> | 200         | application/json      | list of apis  |
+
+>```javascript
+>   [{
+>       "userAPIs":[
+>           {"api":"Get user","route":"/users/:userId","method":"GET"},
+>           {"api":"Create user","route":"/users","method":"POST"},
+>           {"api":"Update user","route":"/users/:userId","method":"PUT"},
+>           {"api":"Delete user","route":"/users/:userId","method":"DELETE"}
+>       ]
+>   }]
+>```
+
+##### Example cURL
+
+> ```javascript
+>  curl http://localhost:3000/users
+> ```
+
+</details>
+
 #### Create User
 
 <details>
