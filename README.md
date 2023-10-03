@@ -195,3 +195,10 @@ To remove deployment (remove the stack from AWS),
 ```
 $ sls remove
 ```
+
+#### Notes
+
+- No security features are implemented, this is just a showcase of serverless api.
+- Only `firstName`, `lastName`, `email` are required, other fields/attributes/properties are optional.
+- `userId` is the partition key and a global secondary index is set on `email`.
+- `email` should be unique, other fields are flexible and can have duplicates, again this is to showcase handling of unique fields.
